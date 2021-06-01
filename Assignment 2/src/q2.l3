@@ -1,0 +1,98 @@
+(define empty?
+  (lambda (lst)
+      (not (pair? lst))
+  )
+)
+
+(define append 
+  (lambda(lst1 lst2)
+      (if (empty? lst1) 
+          lst2
+          (if (empty? lst2)
+              lst1
+              (cons (car lst1) (append (cdr lst1) lst2))
+          )
+      )
+  )
+)
+
+(define reverse 
+  (lambda (lst)
+        (if (empty? lst)
+          lst
+          (append (reverse (cdr lst)) (cons (car lst) '())
+          )
+        )
+  )
+)
+
+(define duplicate-items-with-helperlst
+  (lambda (lst dup-items dup-items-helper)
+    (if (empty? lst)
+      lst
+      (if (empty? dup-items)
+        (duplicate-items-with-helperlst lst dup-items-helper dup-items-helper)
+        (if (> (car dup-items) 0)
+          (append (cons (car lst) '()) (duplicate-items-with-helperlst lst (append (cons (- (car dup-items) 1) '()) (cdr dup-items)) dup-items-helper))
+          (duplicate-items-with-helperlst (cdr lst) (cdr dup-items) dup-items-helper)
+        )
+      )
+    )
+  )
+)
+
+(define duplicate-items
+   (lambda(lst dup-count)
+      (duplicate-items-with-helperlst lst dup-count dup-count)
+   )
+)
+
+(define contains
+  (lambda (lst num)
+    (if (empty? lst)
+        #f
+        (if (= (car lst) num)
+            #t
+            (contains (cdr lst) num)
+        )
+     )
+   )
+)
+
+(define payment-helper
+  (lambda (n coins-lst ignored-coins)
+        (if (empty? coins-lst)
+            (if (= n 0)
+                1
+                0
+            )
+            (if (= n 0)
+                1
+                (if (< n (car coins-lst))
+                    (payment-helper n (cdr coins-lst) (append ignored-coins (cons (car coins-lst) '())))
+                    (if (contains ignored-coins (car coins-lst))
+                        (payment-helper n (cdr coins-lst) (append ignored-coins (cons (car coins-lst) '())))
+                        (+ (payment-helper n (cdr coins-lst) (append ignored-coins (cons (car coins-lst) '()))) (payment-helper (- n (car coins-lst)) (cdr coins-lst) ignored-coins))
+                    )
+                 )
+             )   
+        )
+  )
+)
+
+(define payment
+  (lambda (n coins-lst)
+        (payment-helper n coins-lst '())
+  )
+)
+                               
+(define compose-n
+  (lambda( f n)
+    (lambda(x)
+      (if (= n 1)
+        (f x)
+        (f((compose-n f (- n 1)) x))
+      )
+    )
+  )
+)
